@@ -1,0 +1,81 @@
+Script to view oracle database reference manual by cui.
+
+This script provide two functions.
+First, download online html manual and convert for reading.
+Second, can read converted online manual with optional viewer.
+
+Usage
+  1) Read this script in the current b-shell environment.(bash or zsh)
+      $ source /path/to/oracle-cui-reference.sh
+
+  2) Make converted data with omkdata function.
+      $ omkdata { 102 | 111 | 112 | all }
+
+     omkdata function requires one argument
+     such as release version:
+
+       112 - Oracle Database 11g Release 2 (11.2)
+       111 - Oracle Database 11g Release 1 (11.1)
+       102 - Oracle Database 10g Release 2 (10.2)
+       all - all of the above
+
+     this function relies on wget and w3m.
+
+  3) View converted data using following functions.
+
+       owhat    - What's New
+       oinit    - Initialization Parameters
+       ostat    - Static Data Dictionary
+       odyn     - Dynamic Performance Views (V$)
+       olimits  - Database Limits
+       oscripts - SQL Scripts
+       owait    - Oracle Wait Events
+       oenq     - Oracle Enqueue Names
+       ostats   - Statistics Descriptions
+       obg      - Background Processes
+
+     these functions recognize two optional arguments.
+
+       o???? [ [ 102 | 111 | 112 ] search_word ]
+
+     The first argument specify target release version.
+     If this omitted, using ODOC_RELVER variable. (default: 112)
+
+     The second argument used for searching word. This argument
+     become effective if $ODOC_VIEWER indicates vi or view or vim.
+
+Options
+  The following shell variables affects the execution of functions:
+
+  ODOC_CACHE_DIR
+    The location of download file and converted file is stored.
+    (default: $HOME/.odoc_cache)
+
+  ODOC_VIEWER
+    The name of the viewer program to use for display the manual.
+    (default: $PAGER or more)
+
+  ODOC_RELVER
+    The number of product version to be used as the default.
+    (default: 112)
+
+  ODOC_LANG
+    The language of a document to be manipulated.
+    Currentry supports "en", "ja".
+    (default: ja)
+
+  ODOC_SHRINK
+    The level of shrink original documents.
+      0: Don't shrink.
+      1: Shrink blank lines on a table.
+      2: In addition to above, shrink ruled lines on a table.
+      3: In addition to above, shrink blank lines on a whole document.
+
+    This variable used by omkdata function only.
+    (default: 3)
+
+  ODOC_DYN
+    Enables dynamic conversion to display the manual.
+    This parameter is useful to view a different terminal width when you convert.
+    This parameter is useful when you are using a different terminal width when you convert.
+    (default: 0)
