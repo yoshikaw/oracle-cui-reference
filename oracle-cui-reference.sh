@@ -41,7 +41,6 @@
 #
 #        121 - Oracle Database 12c Release 1 (12.1)
 #        112 - Oracle Database 11g Release 2 (11.2)
-#        112 - Oracle Database 11g Release 2 (11.2)
 #        111 - Oracle Database 11g Release 1 (11.1)
 #        102 - Oracle Database 10g Release 2 (10.2)
 #        all - all of the above

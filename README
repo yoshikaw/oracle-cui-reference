@@ -9,11 +9,12 @@ Usage
       $ source /path/to/oracle-cui-reference.sh
 
   2) Make converted data with omkdata function.
-      $ omkdata { 102 | 111 | 112 | all }
+      $ omkdata { 102 | 111 | 112 | 121 | all }
 
      omkdata function requires one argument
      such as release version:
 
+       121 - Oracle Database 12c Release 1 (12.1)
        112 - Oracle Database 11g Release 2 (11.2)
        111 - Oracle Database 11g Release 1 (11.1)
        102 - Oracle Database 10g Release 2 (10.2)
@@ -23,9 +24,9 @@ Usage
 
   3) View converted data using following functions.
 
-       owhat    - What's New
+       owhat    - What's New / Changes in This Release
        oinit    - Initialization Parameters
-       ostat    - Static Data Dictionary
+       ostat    - Static Data Dictionary Views
        odyn     - Dynamic Performance Views (V$)
        olimits  - Database Limits
        oscripts - SQL Scripts
@@ -36,7 +37,7 @@ Usage
 
      these functions recognize two optional arguments.
 
-       o???? [ [ 102 | 111 | 112 ] search_word ]
+       o???? [ [ 102 | 111 | 112 | 121 ] search_word ]
 
      The first argument specify target release version.
      If this omitted, using ODOC_RELVER variable. (default: 112)
