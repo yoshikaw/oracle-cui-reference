@@ -6,7 +6,7 @@
 # First, download online html manual and convert for reading.
 # Second, can read converted online manual with optional viewer.
 #
-# Copyright (c) 2012 Kazuhiro Yoshikawa <yoshikaw@gmail.com>
+# Copyright (c) 2012,2014 Kazuhiro Yoshikawa <yoshikaw@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -34,11 +34,13 @@
 #       $ source /path/to/oracle-cui-reference.sh
 #
 #   2) Make converted data with omkdata function.
-#       $ omkdata { 102 | 111 | 112 | all }
+#       $ omkdata { 102 | 111 | 112 | 121 | all }
 #
 #      omkdata function requires one argument
 #      such as release version:
 #
+#        121 - Oracle Database 12c Release 1 (12.1)
+#        112 - Oracle Database 11g Release 2 (11.2)
 #        112 - Oracle Database 11g Release 2 (11.2)
 #        111 - Oracle Database 11g Release 1 (11.1)
 #        102 - Oracle Database 10g Release 2 (10.2)
@@ -48,9 +50,9 @@
 #
 #   3) View converted data using following functions.
 #
-#        owhat    - What's New
+#        owhat    - What's New / Changes in This Release
 #        oinit    - Initialization Parameters
-#        ostat    - Static Data Dictionary
+#        ostat    - Static Data Dictionary Views
 #        odyn     - Dynamic Performance Views (V$)
 #        olimits  - Database Limits
 #        oscripts - SQL Scripts
@@ -61,7 +63,7 @@
 #
 #      these functions recognize two optional arguments.
 #
-#        o???? [ [ 102 | 111 | 112 ] search_word ]
+#        o???? [ [ 102 | 111 | 112 | 121 ] search_word ]
 #
 #      The first argument specify target release version.
 #      If this omitted, using ODOC_RELVER variable. (default: 112)
@@ -129,11 +131,13 @@ fi
 __odoc[102000]='u0604http://docs.oracle.com/cd/B19306_01/server.102/b14237'
 __odoc[111000]='u0604http://docs.oracle.com/cd/B28359_01/server.111/b28320'
 __odoc[112000]='u0604http://docs.oracle.com/cd/E11882_01/server.112/e25513'
+__odoc[121000]='u0604http://docs.oracle.com/cd/E16655_01/server.121/e17615'
 __odoc_lang_en='000'
 
 __odoc[102001]='s0702http://otndnld.oracle.co.jp/document/products/oracle10g/102/doc_cd/server.102/B19228-04'
 __odoc[111001]='s0702http://otndnld.oracle.co.jp/document/products/oracle11g/111/doc_dvd/server.111/E05771-04'
 __odoc[112001]='u0602http://docs.oracle.com/cd/E16338_01/server.112/b56311'
+__odoc[121001]='u0602http://docs.oracle.com/cd/E49329_01/server.121/b71292'
 __odoc_lang_ja='001'
 #}}}
 
@@ -199,18 +203,18 @@ function __odoc_filter() { #{{{
     if [ $COLUMNS -gt 100 ]; then
       filter="${filter}s/^\s*(Next\s+)?(Home\s+|List\s+Contents\s+|Master\s+Contact|Book\s+Index\s+Us|List)+ *\n//;"
     else
-:
+      :
     fi
     filter="${filter}s/\s*(Next\s+)?(Home\s+|List\s+Contents\s+|Master\s+Contact|Book\s+Index\s+Us|List)+ *//;"
     filter="${filter}s/\s+Documentation\s+to\s+Table of\s+Index\s+Master\s+Feedback(\x20)*//;"
     filter="${filter}s/\s*(Home\s+)?Book\s+Contents\s+Index\s+Index\s+page?(\x20)*//;"
     ;;
   "ja")
+    filter="${filter}s/^\xa5\xd8\xa5\xc3\xa5\xc0\xa1\xbc\xa4\xf2\xa5\xb9.*\n$//;"             # 'ヘッダーをスキップ'
     if [[ "$(__odoc_encoding)" = 'u' ]]; then
       # Remove line of navigation
-      filter="${filter}s/^\xa5\xd8\xa5\xc3\xa5\xc0\xa1\xbc\xa4\xf2\xa5\xb9.*\n$//;"           # 'ヘッダーをスキップ'
       filter="${filter}s/^\xa4\xb3\xa4\xce\xa5\xda\xa1\xbc\xa5\xb8\xa4\xce.*\n$//;"           # 'このページのスクリプト・コンテンツは...'
-      filter="${filter}s/^\xa1\xd6\xbc\xa1\xa4\xd8\xa1\xd7\xa5\xdc\xa5\xbf.*\n$//;"           # '「次へ」ボタンをクリックすると、...'
+      filter="${filter}s/^\xa1\xd6\xbc\xa1(\xa4\xd8)?\xa1\xd7\xa5\xdc\xa5\xbf.*\n$//;"        # '「次へ」ボタンをクリックすると、...'
       filter="${filter}s/^.*\xcb\xa1\xce\xa7\xbe\xe5\xa4\xce\xc3\xed\xb0\xd5\xc5\xc0.*\n$//;" # '法律上の注意点...'
 
       # Remove navigate strings ' 前 次 '
@@ -218,6 +222,8 @@ function __odoc_filter() { #{{{
     else
       # Remove navigate strings ' 戻る 次へ '
       filter="${filter}s/\s*\xcc\xe1\xa4\xeb(\x20)*\xbc\xa1\xa4\xd8\s*//;"
+
+      filter="${filter}s/ +$//;"
     fi
 
     # Remove navigate strings ' 目次(へ移動) 索引(へ移動) '
@@ -235,8 +241,8 @@ function __odoc_filter() { #{{{
   filter="${filter}s/^\s*Oracle(\xa5\xed\xa5\xb4)?\s*$//;"
 
   # Recover symbol string that cannot be converted to euc-jp encoding
-  filter="${filter}s/^Oracle\? /Oracle(R) /;"
-  filter="${filter}s/Copyright \?/Copyright (C)/;"
+  filter="${filter}s/^Oracle\?+ /Oracle(R) /;"
+  filter="${filter}s/Copyright \?+/Copyright (C)/;"
 
   # Replace the ambiguous characters that cannot be converted to euc-jp encoding
   filter="${filter}s/\xA1\xDD/\x2D\x20/g;"
@@ -257,7 +263,7 @@ function __odoc_view() { #{{{
   local relver=$ODOC_RELVER
   case $# in
     1) ;;
-    2) case $2 in 102|111|112) relver=$2; shift;; esac;;
+    2) case $2 in 102|111|112|121) relver=$2; shift;; esac;;
     *) relver=$2; shift;;
   esac
   local lang="$(__odoc_lang)"
@@ -287,10 +293,10 @@ function omkdata() { #{{{
   local cols=$[ ${ODOC_COLUMNS:-${COLUMNS:-90}} - 1 ]
   local relver
   case $1 in
-    102|111|112) relver=$1;;
-    all) for relver in 102 111 112; do omkdata $relver; done; return;;
+    102|111|112|121) relver=$1;;
+    all) for relver in 102 111 112 121; do omkdata $relver; done; return;;
     *)
-      echo "Usage: omkdata { 102 | 111 | 112 | all }"
+      echo "Usage: omkdata { 102 | 111 | 112 | 121 | all }"
       return 1
   esac
   local lang="$(__odoc_lang)"
@@ -329,12 +335,22 @@ function omkdata() { #{{{
   [[ "$encoding" = "s" ]] && type iconv > /dev/null 2>&1 && convert_title=1
 
   p=${pages[*]}
+  [[ $relver = 121 ]] && p="$p release_changes.htm refrn[0123][[:digit:]]{4}.htm refrn004[[:digit:]].htm refrn00[789].htm"
   grep -E "<a href=\"(${p// /|})" $toc \
     | perl -pi -e 's{.*href="([^#"]+)?.*?">(?:(?:<span class="secnum">[^<]+</span>|\w?&nbsp;) +)?([^<]+)(?:<(?:span|em) class="italic">([^<]+)?</(?:span|em)>)?(.*)?</a>(?:<.*)?}{$1 $2$3}i' \
     | while read file title
   do
     cachefile=$cachedir/$file
     indexfile=$cachedir/${file//[0-9_]/}.txt
+    if [[ $relver -ge 121 ]]; then
+      case $file in
+        release_changes.htm)             indexfile=$cachedir/whatsnew.htm.txt;;
+        refrn[01]????.htm)               indexfile=$cachedir/initparams.htm.txt;;
+        refrn00[789].htm|refrn2????.htm) indexfile=$cachedir/statviews.htm.txt;;
+        refrn3????.htm)                  indexfile=$cachedir/dynviews.htm.txt;;
+        refrn004?.htm)                   indexfile=$cachedir/limits.htm.txt;;
+      esac
+    fi
     mergefile=${indexfile%.htm.txt}.merged.html
 
     indexname=${indexfile##*/}
