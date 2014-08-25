@@ -246,7 +246,7 @@ function __odoc_filter() { #{{{
   # Replace the ambiguous characters that cannot be converted to euc-jp encoding
   filter="${filter}s/\xA1\xDD/\x2D\x20/g;"
 
-  echo "| perl -pi -e '$filter'"
+  echo "| perl -p -e '$filter'"
 } #}}}
 
 function __odoc_download() { #{{{
@@ -336,7 +336,7 @@ function omkdata() { #{{{
   p=${pages[*]}
   [[ $relver = 121 ]] && p="$p release_changes.htm refrn[0123][[:digit:]]{4}.htm refrn004[[:digit:]].htm refrn00[789].htm"
   grep -E "<a href=\"(${p// /|})" $toc \
-    | perl -pi -e 's{.*href="([^#"]+)?.*?">(?:(?:<span class="secnum">[^<]+</span>|\w?&nbsp;) +)?([^<]+)(?:<(?:span|em) class="italic">([^<]+)?</(?:span|em)>)?(.*)?</a>(?:<.*)?}{$1 $2$3}i' \
+    | perl -p -e 's{.*href="([^#"]+)?.*?">(?:(?:<span class="secnum">[^<]+</span>|\w?&nbsp;) +)?([^<]+)(?:<(?:span|em) class="italic">([^<]+)?</(?:span|em)>)?(.*)?</a>(?:<.*)?}{$1 $2$3}i' \
     | while read file title
   do
     cachefile=$cachedir/$file
