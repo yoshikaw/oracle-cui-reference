@@ -130,7 +130,7 @@ fi
 __odoc[102000]='u0604http://docs.oracle.com/cd/B19306_01/server.102/b14237'
 __odoc[111000]='u0604http://docs.oracle.com/cd/B28359_01/server.111/b28320'
 __odoc[112000]='u0604http://docs.oracle.com/cd/E11882_01/server.112/e25513'
-__odoc[121000]='u0604http://docs.oracle.com/cd/E16655_01/server.121/e17615'
+__odoc[121000]='u0604http://docs.oracle.com/database/121/REFRN'
 __odoc_lang_en='000'
 
 __odoc[102001]='s0702http://otndnld.oracle.co.jp/document/products/oracle10g/102/doc_cd/server.102/B19228-04'
