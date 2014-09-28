@@ -136,7 +136,7 @@ __odoc_lang_en='000'
 __odoc[102001]='s0702http://otndnld.oracle.co.jp/document/products/oracle10g/102/doc_cd/server.102/B19228-04'
 __odoc[111001]='s0702http://otndnld.oracle.co.jp/document/products/oracle11g/111/doc_dvd/server.111/E05771-04'
 __odoc[112001]='u0602http://docs.oracle.com/cd/E16338_01/server.112/b56311'
-__odoc[121001]='u0602http://docs.oracle.com/cd/E49329_01/server.121/b71292'
+__odoc[121001]='u0602http://docs.oracle.com/cd/E57425_01/121/REFRN'
 __odoc_lang_ja='001'
 #}}}
 
