@@ -124,12 +124,12 @@ else
   declare -a __odoc
 fi
 # [format]      1 original document encoding [u]utf8 [s]shift_jis
-#               |23 starting line number of contents
-#               || 45 ending line number of contents
+#               |23 starting line number of contents(currently not used)
+#               || 45 ending line number of contents(currently not used)
 #               || | 6- document url base
 __odoc[102000]='u0604http://docs.oracle.com/cd/B19306_01/server.102/b14237'
 __odoc[111000]='u0604http://docs.oracle.com/cd/B28359_01/server.111/b28320'
-__odoc[112000]='u0604http://docs.oracle.com/cd/E11882_01/server.112/e25513'
+__odoc[112000]='u0604http://docs.oracle.com/cd/E11882_01/server.112/e40402'
 __odoc[121000]='u0604http://docs.oracle.com/database/121/REFRN'
 __odoc_lang_en='000'
 
@@ -138,6 +138,18 @@ __odoc[111001]='s0702http://otndnld.oracle.co.jp/document/products/oracle11g/111
 __odoc[112001]='u0602http://docs.oracle.com/cd/E16338_01/server.112/b56311'
 __odoc[121001]='u0602http://docs.oracle.com/cd/E57425_01/121/REFRN'
 __odoc_lang_ja='001'
+
+# new navigation
+__odoc_breadcrumbs[102000]='http://docs.oracle.com/cd/B19306_01/nav/breadcrumbs.json'
+__odoc_breadcrumbs[111000]='http://docs.oracle.com/cd/B28359_01/nav/breadcrumbs.json'
+__odoc_breadcrumbs[112000]='http://docs.oracle.com/cd/E11882_01/nav/breadcrumbs.json'
+__odoc_breadcrumbs[121000]='http://docs.oracle.com/database/121/nav/breadcrumbs.json'
+__odoc_headfoot[102000]='http://docs.oracle.com/cd/B19306_01/dcommon/js/headfoot.js'
+__odoc_headfoot[111000]='http://docs.oracle.com/cd/B28359_01/dcommon/js/headfoot.js'
+__odoc_headfoot[112000]='http://docs.oracle.com/cd/E11882_01/dcommon/js/headfoot.js'
+__odoc_headfoot[121000]='https://docs.oracle.com/database/121/dcommon/js/headfoot.js'
+
+__odoc_ruled_line=$(perl -le "print '\xa8\xac'x($COLUMNS/2)")
 #}}}
 
 function __odoc_lang()       { eval "echo \$__odoc_lang_${ODOC_LANG}"; }
@@ -181,32 +193,16 @@ function __odoc_filter() { #{{{
 
   case "$ODOC_LANG" in
   "en")
-    # Remove line of navigation
-    filter="${filter}s/^Skip Headers.*\n$//;"
-    filter="${filter}s/^The script content on this page is for navigation purposes only and does not alter the content in any way.\n$//;"
-    filter="${filter}s/^Press the \"Next\" button to go to the.*\n$//;"
-    filter="${filter}s/^.*Legal Notices.*\n$//;"
+    filter=
 
-    filter="${filter}s/^\s*(Go to|[Nn]ext|[Pp]revious|page)\s*(Go( to)?|to|[Nn]ext|page)?\s*(PDF.*ePub)?\s*\n$//;"
+    # Remove navigation page number (?/????)
+    filter="${filter}s/^\d+\\/\d+\n$//;"
+
+    # Remove noscript message
     filter="${filter}s/^Scripting on this page enhances content navigation, but does not change the content in any way.\n$//;"
 
-    # Remove navigate strings
-    filter="${filter}s/^\s+(Go( to)?\s+)+//;"
-    filter="${filter}s/\s+(Go( to)?\s+)+$/\n/;"
-#    filter="${filter}s/^\s+(Go( to)? *)+$//;"
-#    filter="${filter}s/\s*(Go( to)? *)//;"
-##    filter="${filter}s/^\s*([Pp]revious\s+(to|[Nn]ext)|page\s+(next|page))\s*//;"
-##    filter="${filter}s/^\s*(Next\s+)?(Home\s+|List\s+Contents\s+|Master\s+Contact|Book\s+Index\s+Us|List)+ *\n//;"
-##    filter="${filter}s/\s*([Pp]revious\s+(to|[Nn]ext)|page\s+(next|page))\s*//;"
-    filter="${filter}s/^\s*([Pp]revious\s+(to|page|[Nn]ext)|page\s+(next|page))\s*//;"
-    if [ $COLUMNS -gt 100 ]; then
-      filter="${filter}s/^\s*(Next\s+)?(Home\s+|List\s+Contents\s+|Master\s+Contact|Book\s+Index\s+Us|List)+ *\n//;"
-    else
-      :
-    fi
-    filter="${filter}s/\s*(Next\s+)?(Home\s+|List\s+Contents\s+|Master\s+Contact|Book\s+Index\s+Us|List)+ *//;"
-    filter="${filter}s/\s+Documentation\s+to\s+Table of\s+Index\s+Master\s+Feedback(\x20)*//;"
-    filter="${filter}s/\s*(Home\s+)?Book\s+Contents\s+Index\s+Index\s+page?(\x20)*//;"
+    # Remove trailing spaces
+    filter="${filter}s/ +$//;"
     ;;
   "ja")
     filter="${filter}s/^\xa5\xd8\xa5\xc3\xa5\xc0\xa1\xbc\xa4\xf2\xa5\xb9.*\n$//;"             # 'ヘッダーをスキップ'
@@ -227,24 +223,25 @@ function __odoc_filter() { #{{{
 
     # Remove navigate strings ' 目次(へ移動) 索引(へ移動) '
     filter="${filter}s/\s*\xcc\xdc\xbc\xa1(\xa4\xd8\xb0\xdc\xc6\xb0)?(\x20)+\xba\xf7\xb0\xfa(\xa4\xd8\xb0\xdc\xc6\xb0)?(\x20)*//;"
+
+    # Remove left spaces
+    filter="${filter}s/\s*Copyright /Copyright /;"
+
+    # Remove line feed
+    filter="${filter}s/(Oracle Corporation\.)\s*$/\$1 /;"
+    filter="${filter}s/(Oracle and\/(or its)?)\s*$/\$1/;"
+
+    # Remove line of alternate logo text 'Oracle(ロゴ)'
+    filter="${filter}s/^\s*Oracle(\xa5\xed\xa5\xb4)?\s*$//;"
+
+    # Recover symbol string that cannot be converted to euc-jp encoding
+    filter="${filter}s/^Oracle\?+ /Oracle(R) /;"
+    filter="${filter}s/Copyright \?+/Copyright (C)/;"
+
+    # Replace the ambiguous characters that cannot be converted to euc-jp encoding
+    filter="${filter}s/\xA1\xDD/\x2D\x20/g;"
     ;;
   esac
-  # Remove left spaces
-  filter="${filter}s/\s*Copyright /Copyright /;"
-
-  # Remove line feed
-  filter="${filter}s/(Oracle Corporation\.)\s*$/\$1 /;"
-  filter="${filter}s/(Oracle and\/(or its)?)\s*$/\$1/;"
-
-  # Remove line of alternate logo text 'Oracle(ロゴ)'
-  filter="${filter}s/^\s*Oracle(\xa5\xed\xa5\xb4)?\s*$//;"
-
-  # Recover symbol string that cannot be converted to euc-jp encoding
-  filter="${filter}s/^Oracle\?+ /Oracle(R) /;"
-  filter="${filter}s/Copyright \?+/Copyright (C)/;"
-
-  # Replace the ambiguous characters that cannot be converted to euc-jp encoding
-  filter="${filter}s/\xA1\xDD/\x2D\x20/g;"
 
   echo "| perl -p -e '$filter'"
 } #}}}
@@ -362,34 +359,71 @@ function omkdata() { #{{{
       if ! [[ -s "$tmpfile" ]]; then
         cmdline="w3m -dump \"file://$cachefile\" -t 4 -S -I$encoding -Oe -cols $cols $filter"
         eval $cmdline > $tmpfile
-        [[ -s $tmpfile ]] || return 1
+        [[ -s $tmpfile ]] || {
+          echo "[$title] $tmpfile not found. "
+          ls -l $cachefile $tmpfile
+          continue
+        }
 
-        # output header first
-        [ -s $indexfile ] || head -n $lines_of_header $tmpfile > $indexfile
+        case "$ODOC_LANG" in
+        "en")
+          # output contents
+          lines=$(cat $tmpfile | wc -l)
+          [[ $convert_title -eq 1 ]] && title="$(echo $title | iconv -f SJIS -t ${LANG#*.} 2> /dev/null)"
 
-        # output contents
-        lines=$(cat $tmpfile | wc -l)
-        [[ $convert_title -eq 1 ]] && title="$(echo $title | iconv -f SJIS -t ${LANG#*.} 2> /dev/null)"
+          # output header first
+          [[ -s $indexfile ]] || {
+            # get product title
+            prod_title=$(wget -O- ${__odoc_breadcrumbs[$relver$lang]} 2> /dev/null | grep '"product"' | cut -d'"' -f4)
+            echo $prod_title > $indexfile
+            grep 'dcterms.title' $cachefile | cut -d'"' -f 4 >> $indexfile
+            grep 'dcterms.identifier' $cachefile | cut -d'"' -f 4 >> $indexfile
+          }
 
-        printf "(%3d %2s) %-15s | %5d %-20s | %s\n" $relver $ODOC_LANG ${indexname%%.*} $lines $file "$title"
-        tail -n +$start_line $tmpfile | head -n +$[ lines - lines_of_frame ] >> $indexfile
+          printf "(%3d %2s) %-15s | %5d %-20s | %s\n" $relver $ODOC_LANG ${indexname%%.*} $lines $file "$title"
+          echo $__odoc_ruled_line >> $indexfile
+          tail -n +2 $tmpfile | head -n +$[ lines - 2 ] >> $indexfile
 
-#printf "-- DEBUG: lines: %d, h:%d c:%d f:%d \n" $lines $lines_of_header $lines_of_frame $lines_of_footer >> $indexfile
+          # output footer
+          [[ -s ${indexfile}.footer.tmp ]] || {
+            headfoot_cache="$cachedir/headfoot.js"
+            [[ -f "$headfoot_cache" ]] || __odoc_download "${__odoc_headfoot[$relver$lang]}" "$headfoot_cache"
+            # get copyright
+            prod_copy=$(grep 'cpyrSpan.appendChild' $headfoot_cache | cut -d'"' -f 2)
+            echo $__odoc_ruled_line > ${indexfile}.footer.tmp
+            echo ${prod_copy/\\u00A9 /(C)} >> ${indexfile}.footer.tmp
+          }
+          ;;
+        "ja")
+          # output header first
+          [ -s $indexfile ] || head -n $lines_of_header $tmpfile > $indexfile
 
-        # output footer in order to merge later
-        tail -n $lines_of_footer $tmpfile | head -n 1 > ${indexfile}.footer.tmp
+          # output contents
+          lines=$(cat $tmpfile | wc -l)
+          [[ $convert_title -eq 1 ]] && title="$(echo $title | iconv -f SJIS -t ${LANG#*.} 2> /dev/null)"
 
-###debug
-###[[ $(wc -c < $indexfile) -gt 100000 ]] && break
+          printf "(%3d %2s) %-15s | %5d %-20s | %s\n" $relver $ODOC_LANG ${indexname%%.*} $lines $file "$title"
+          tail -n +$start_line $tmpfile | head -n +$[ lines - lines_of_frame ] >> $indexfile
 
-        # merge html file
-        lines=$(cat $cachefile | wc -l)
-        start=$(grep -n 'id="BEGIN"' $cachefile | cut -d: -f1)
-        end=$(grep -nE '^<!-- Start Footer -->|<div class="footer">' $cachefile | head -n 1 | cut -d: -f1)
-#        tail -n +$start $cachefile | head -n +$[ lines - end ] >> $mergefile
-        tail -n +$[ lines - start + 1 ] $cachefile | head -n +$[ end - ( lines - start ) - 1 ] >> $mergefile
-        echo "<hr/>" >> $mergefile
-        tail -n +$end $cachefile > ${mergefile}.footer.tmp
+  #printf "-- DEBUG: lines: %d, h:%d c:%d f:%d \n" $lines $lines_of_header $lines_of_frame $lines_of_footer >> $indexfile
+
+          # output footer in order to merge later
+          tail -n $lines_of_footer $tmpfile | head -n 1 > ${indexfile}.footer.tmp
+
+  ###debug
+  ###[[ $(wc -c < $indexfile) -gt 100000 ]] && break
+
+          # merge html file
+          lines=$(cat $cachefile | wc -l)
+  #        start=$(grep -n 'id="BEGIN"' $cachefile | cut -d: -f1)
+          start=$(grep -n '"#BEGIN"' $cachefile | cut -d: -f1)
+          end=$(grep -nE '^<!-- Start Footer -->|<div class="footer">' $cachefile | head -n 1 | cut -d: -f1)
+  #        tail -n +$start $cachefile | head -n +$[ lines - end ] >> $mergefile
+          tail -n +$[ lines - start + 1 ] $cachefile | head -n +$[ end - ( lines - start ) - 1 ] >> $mergefile
+          echo "<hr/>" >> $mergefile
+          tail -n +$end $cachefile > ${mergefile}.footer.tmp
+          ;;
+        esac
       fi
     fi
   done
