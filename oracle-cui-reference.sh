@@ -34,11 +34,12 @@
 #       $ source /path/to/oracle-cui-reference.sh
 #
 #   2) Make converted data with omkdata function.
-#       $ omkdata { 102 | 111 | 112 | 121 | all }
+#       $ omkdata { 102 | 111 | 112 | 121 | 122 | all }
 #
 #      omkdata function requires one argument
 #      such as release version:
 #
+#        122 - Oracle Database 12c Release 2 (12.2) * English version only
 #        121 - Oracle Database 12c Release 1 (12.1)
 #        112 - Oracle Database 11g Release 2 (11.2)
 #        111 - Oracle Database 11g Release 1 (11.1)
@@ -62,7 +63,7 @@
 #
 #      these functions recognize two optional arguments.
 #
-#        o???? [ [ 102 | 111 | 112 | 121 ] search_word ]
+#        o???? [ [ 102 | 111 | 112 | 121 | 122 ] search_word ]
 #
 #      The first argument specify target release version.
 #      If this omitted, using ODOC_RELVER variable. (default: 121)
@@ -131,6 +132,7 @@ __odoc[102000]='u0604http://docs.oracle.com/cd/B19306_01/server.102/b14237'
 __odoc[111000]='u0604http://docs.oracle.com/cd/B28359_01/server.111/b28320'
 __odoc[112000]='u0604http://docs.oracle.com/cd/E11882_01/server.112/e40402'
 __odoc[121000]='u0604http://docs.oracle.com/database/121/REFRN'
+__odoc[122000]='u0604http://docs.oracle.com/database/122/REFRN'
 __odoc_lang_en='000'
 
 __odoc[102001]='s0702http://otndnld.oracle.co.jp/document/products/oracle10g/102/doc_cd/server.102/B19228-04'
@@ -144,10 +146,12 @@ __odoc_breadcrumbs[102000]='http://docs.oracle.com/cd/B19306_01/nav/breadcrumbs.
 __odoc_breadcrumbs[111000]='http://docs.oracle.com/cd/B28359_01/nav/breadcrumbs.json'
 __odoc_breadcrumbs[112000]='http://docs.oracle.com/cd/E11882_01/nav/breadcrumbs.json'
 __odoc_breadcrumbs[121000]='http://docs.oracle.com/database/121/nav/breadcrumbs.json'
+__odoc_breadcrumbs[122000]='http://docs.oracle.com/database/122/nav/breadcrumbs.json'
 __odoc_headfoot[102000]='http://docs.oracle.com/cd/B19306_01/dcommon/js/headfoot.js'
 __odoc_headfoot[111000]='http://docs.oracle.com/cd/B28359_01/dcommon/js/headfoot.js'
 __odoc_headfoot[112000]='http://docs.oracle.com/cd/E11882_01/dcommon/js/headfoot.js'
 __odoc_headfoot[121000]='https://docs.oracle.com/database/121/dcommon/js/headfoot.js'
+__odoc_headfoot[122000]='https://docs.oracle.com/database/122/dcommon/js/headfoot.js'
 
 __odoc_ruled_line=$(perl -le "print '\xa8\xac'x($COLUMNS/2)")
 #}}}
@@ -260,7 +264,7 @@ function __odoc_view() { #{{{
   local relver=$ODOC_RELVER
   case $# in
     1) ;;
-    2) case $2 in 102|111|112|121) relver=$2; shift;; esac;;
+    2) case $2 in 102|111|112|121|122) relver=$2; shift;; esac;;
     *) relver=$2; shift;;
   esac
   local lang="$(__odoc_lang)"
@@ -290,10 +294,10 @@ function omkdata() { #{{{
   local cols=$[ ${ODOC_COLUMNS:-${COLUMNS:-90}} - 1 ]
   local relver
   case $1 in
-    102|111|112|121) relver=$1;;
-    all) for relver in 102 111 112 121; do omkdata $relver; done; return;;
+    102|111|112|121|122) relver=$1;;
+    all) for relver in 102 111 112 121 122; do omkdata $relver; done; return;;
     *)
-      echo "Usage: omkdata { 102 | 111 | 112 | 121 | all }"
+      echo "Usage: omkdata { 102 | 111 | 112 | 121 | 122 | all }"
       return 1
   esac
   local lang="$(__odoc_lang)"
@@ -333,6 +337,7 @@ function omkdata() { #{{{
 
   p=${pages[*]}
   [[ $relver = 121 ]] && p="GUID-.*.htm"
+  [[ $relver = 122 ]] && p="[0-9a-zA-Z_-]*.htm"
   grep -E "<a href=\"(${p// /|})" $toc \
     | perl -p -e 's{.*href="([^#"]+)?.*?">(?:(?:<span class="secnum">[^<]+</span>|\w?&nbsp;) +)?([^<]+)(?:<(?:span|em) class="italic">([^<]+)?</(?:span|em)>)?(.*)?</a>(?:<.*)?}{$1 $2$3}i' \
     | while read file title
@@ -354,6 +359,22 @@ function omkdata() { #{{{
         'GUID-94B7C247-F152-43EB-9482-35B35EDBA934.htm') indexfile=$cachedir/enqueues.htm.txt;;
         'GUID-2A9F2E5B-992E-43D1-8377-F4080824129C.htm') indexfile=$cachedir/stats.htm.txt;;
         'GUID-86184690-5531-405F-AA05-BB935F57B76D.htm') indexfile=$cachedir/bgprocesses.htm.txt;;
+      esac
+    elif [[ $relver -eq 122 ]]; then
+      case "$file" in
+        'title.htm'|'preface.htm') continue;;
+        'release-changes.htm')              indexfile=$cachedir/whatsnew.htm.txt;;
+        'initialization-parameters.htm')    indexfile=$cachedir/initparams.htm.txt;;
+        'static-data-dictionary-views.htm') indexfile=$cachedir/statviews.htm.txt;;
+        'dynamic-performance-views.htm')    indexfile=$cachedir/dynviews.htm.txt;;
+        'appendixes.htm') continue;;
+        'database-limits.htm')              indexfile=$cachedir/limits.htm.txt;;
+        'sql-scripts.htm')                  indexfile=$cachedir/scripts.htm.txt;;
+        'oracle-wait-events.htm')           indexfile=$cachedir/waitevents.htm.txt;;
+        'oracle-enqueue-names.htm')         indexfile=$cachedir/enqueues.htm.txt;;
+        'statistics-descriptions.htm')      indexfile=$cachedir/stats.htm.txt;;
+        'background-processes.htm')         indexfile=$cachedir/bgprocesses.htm.txt;;
+        'index.htm'|'<td') continue;;
       esac
     fi
     mergefile=${indexfile%.htm.txt}.merged.html
@@ -389,7 +410,7 @@ function omkdata() { #{{{
             grep 'dcterms.identifier' $cachefile | cut -d'"' -f 4 >> $indexfile
           }
 
-          printf "(%3d %2s) %-15s | %5d %-20s | %s\n" $relver $ODOC_LANG ${indexname%%.*} $lines $file "$title"
+          printf "(%3d %2s) %-15s | %5d %-50s | %s\n" $relver $ODOC_LANG ${indexname%%.*} $lines $file "$title"
           echo $__odoc_ruled_line >> $indexfile
           tail -n +2 $tmpfile | head -n +$[ lines - 2 ] >> $indexfile
 
