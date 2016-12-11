@@ -65,7 +65,7 @@
 #        o???? [ [ 102 | 111 | 112 | 121 ] search_word ]
 #
 #      The first argument specify target release version.
-#      If this omitted, using ODOC_RELVER variable. (default: 112)
+#      If this omitted, using ODOC_RELVER variable. (default: 121)
 #
 #      The second argument used for searching word. This argument
 #      become effective if $ODOC_VIEWER indicates vi or view or vim.
@@ -83,7 +83,7 @@
 #
 #   ODOC_RELVER
 #     The number of product version to be used as the default.
-#     (default: 112)
+#     (default: 121)
 #
 #   ODOC_LANG
 #     The language of a document to be manipulated.
@@ -111,7 +111,7 @@
 : ${ODOC_CACHE_DIR:=$HOME/.odoc_cache}
 : ${ODOC_VIEWER:=${PAGER:=more}}
 
-: ${ODOC_RELVER:=112}
+: ${ODOC_RELVER:=121}
 : ${ODOC_LANG:=ja}
 
 : ${ODOC_SHRINK:=3}
