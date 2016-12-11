@@ -398,9 +398,10 @@ function omkdata() { #{{{
             headfoot_cache="$cachedir/headfoot.js"
             [[ -f "$headfoot_cache" ]] || __odoc_download "${__odoc_headfoot[$relver$lang]}" "$headfoot_cache"
             # get copyright
-            prod_copy=$(grep 'cpyrSpan.appendChild' $headfoot_cache | cut -d'"' -f 2)
             echo $__odoc_ruled_line > ${indexfile}.footer.tmp
-            echo ${prod_copy/\\u00A9 /(C)} >> ${indexfile}.footer.tmp
+            grep 'cpyrSpan.appendChild' $headfoot_cache |
+            sed "s/\\\u00A9 \" \+ d.getFullYear() \+ \"/(C) $(date +%Y)/" |
+            cut -d'"' -f 2 >> ${indexfile}.footer.tmp
           }
           ;;
         "ja")
