@@ -383,7 +383,7 @@ function omkdata() { #{{{
           # output header first
           [[ -s $indexfile ]] || {
             # get product title
-            prod_title=$(wget -O- ${__odoc_breadcrumbs[$relver$lang]} 2> /dev/null | grep '"product"' | cut -d'"' -f4)
+            prod_title=$(wget -O- ${__odoc_breadcrumbs[$relver$lang]} 2> /dev/null | grep '"product"' | cut -d'"' -f4 | sed 's,<[^>]*>,,g')
             echo $prod_title > $indexfile
             grep 'dcterms.title' $cachefile | cut -d'"' -f 4 >> $indexfile
             grep 'dcterms.identifier' $cachefile | cut -d'"' -f 4 >> $indexfile
