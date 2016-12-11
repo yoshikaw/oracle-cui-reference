@@ -204,6 +204,7 @@ function __odoc_filter() { #{{{
 
     # Remove noscript message
     filter="${filter}s/^Scripting on this page enhances content navigation, but does not change the content in any way.\n$//;"
+    filter="${filter}s/^The script content on this page is for navigation purposes only and does not alter the content in any way.\n$//;"
 
     # Remove trailing spaces
     filter="${filter}s/ +$//;"
