@@ -6,7 +6,7 @@
 # First, download online html manual and convert for reading.
 # Second, can read converted online manual with optional viewer.
 #
-# Copyright (c) 2012,2014 Kazuhiro Yoshikawa <yoshikaw@gmail.com>
+# Copyright (C) 2012-2016 Kazuhiro Yoshikawa <yoshikaw@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -211,6 +211,7 @@ function __odoc_filter() { #{{{
       filter="${filter}s/^\xa4\xb3\xa4\xce\xa5\xda\xa1\xbc\xa5\xb8\xa4\xce.*\n$//;"           # 'このページのスクリプト・コンテンツは...'
       filter="${filter}s/^\xa1\xd6\xbc\xa1(\xa4\xd8)?\xa1\xd7\xa5\xdc\xa5\xbf.*\n$//;"        # '「次へ」ボタンをクリックすると、...'
       filter="${filter}s/^.*\xcb\xa1\xce\xa7\xbe\xe5\xa4\xce\xc3\xed\xb0\xd5\xc5\xc0.*\n$//;" # '法律上の注意点...'
+      filter="${filter}s/^\xa5\xd7\xa5\xe9\xa5\xa4\xa5\xde\xa5\xea\xa1\xa6\xa5\xb3\xa5\xf3\xa5\xc6\xa5\xf3\xa5\xc4\xa4\xcb\xb0\xdc\xc6\xb0.*\n$//;" # 'プライマリ・コンテンツに移動'
 
       # Remove navigate strings ' 前 次 '
       filter="${filter}s/\s*\xc1\xb0(\x20)+\xbc\xa1\s*//;"
@@ -331,20 +332,28 @@ function omkdata() { #{{{
   [[ "$encoding" = "s" ]] && type iconv > /dev/null 2>&1 && convert_title=1
 
   p=${pages[*]}
-  [[ $relver = 121 ]] && p="$p release_changes.htm refrn[0123][[:digit:]]{4}.htm refrn004[[:digit:]].htm refrn00[789].htm"
+  [[ $relver = 121 ]] && p="GUID-.*.htm"
   grep -E "<a href=\"(${p// /|})" $toc \
     | perl -p -e 's{.*href="([^#"]+)?.*?">(?:(?:<span class="secnum">[^<]+</span>|\w?&nbsp;) +)?([^<]+)(?:<(?:span|em) class="italic">([^<]+)?</(?:span|em)>)?(.*)?</a>(?:<.*)?}{$1 $2$3}i' \
     | while read file title
   do
     cachefile=$cachedir/$file
-    indexfile=$cachedir/${file//[0-9_]/}.txt
-    if [[ $relver -ge 121 ]]; then
-      case $file in
-        release_changes.htm)             indexfile=$cachedir/whatsnew.htm.txt;;
-        refrn[01]????.htm)               indexfile=$cachedir/initparams.htm.txt;;
-        refrn00[789].htm|refrn2????.htm) indexfile=$cachedir/statviews.htm.txt;;
-        refrn3????.htm)                  indexfile=$cachedir/dynviews.htm.txt;;
-        refrn004?.htm)                   indexfile=$cachedir/limits.htm.txt;;
+    if [[ $relver -lt 121 ]]; then
+      indexfile=$cachedir/${file//[0-9_]/}.txt
+    elif [[ $relver -eq 121 ]]; then
+      case "$file" in
+        'GUID-E46079A7-B495-43CE-8395-1AF8B3FDF93B.htm') continue;; # Preface
+        'GUID-509A6343-5882-4260-BAD0-DC6B2BDC8301.htm') indexfile=$cachedir/whatsnew.htm.txt;;
+        'GUID-6F1C3203-0AA0-4AF1-921C-A027DD7CB6A9.htm') indexfile=$cachedir/initparams.htm.txt;;
+        'GUID-8865F65B-EF6D-44A5-B0A1-3179EFF0C36A.htm') indexfile=$cachedir/statviews.htm.txt;;
+        'GUID-8C5690B0-DE10-4460-86DF-80111869CF4C.htm') indexfile=$cachedir/dynviews.htm.txt;;
+        'GUID-87D9037B-13E5-4F9C-B36D-9BAE658CC4DD.htm') continue;; # Part IV Appendixes
+        'GUID-ED26F826-DB40-433F-9C2C-8C63A46A3BFE.htm') indexfile=$cachedir/limits.htm.txt;;
+        'GUID-C308549C-A3DC-4CF2-9433-90650AD0F6DB.htm') indexfile=$cachedir/scripts.htm.txt;;
+        'GUID-03BFEEFB-1020-4F3F-8CF8-A23E7026684B.htm') indexfile=$cachedir/waitevents.htm.txt;;
+        'GUID-94B7C247-F152-43EB-9482-35B35EDBA934.htm') indexfile=$cachedir/enqueues.htm.txt;;
+        'GUID-2A9F2E5B-992E-43D1-8377-F4080824129C.htm') indexfile=$cachedir/stats.htm.txt;;
+        'GUID-86184690-5531-405F-AA05-BB935F57B76D.htm') indexfile=$cachedir/bgprocesses.htm.txt;;
       esac
     fi
     mergefile=${indexfile%.htm.txt}.merged.html
@@ -418,8 +427,7 @@ function omkdata() { #{{{
   #        start=$(grep -n 'id="BEGIN"' $cachefile | cut -d: -f1)
           start=$(grep -n '"#BEGIN"' $cachefile | cut -d: -f1)
           end=$(grep -nE '^<!-- Start Footer -->|<div class="footer">' $cachefile | head -n 1 | cut -d: -f1)
-  #        tail -n +$start $cachefile | head -n +$[ lines - end ] >> $mergefile
-          tail -n +$[ lines - start + 1 ] $cachefile | head -n +$[ end - ( lines - start ) - 1 ] >> $mergefile
+          tail -n +$[ lines - start + 1 ] $cachefile | head -n +$[ lines - end ] >> $mergefile
           echo "<hr/>" >> $mergefile
           tail -n +$end $cachefile > ${mergefile}.footer.tmp
           ;;
