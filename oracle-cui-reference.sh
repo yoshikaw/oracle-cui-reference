@@ -477,7 +477,8 @@ function omkdata() { #{{{
 
   # make shortcut
   local shortcut=$ODOC_CACHE_DIR/$relver$ODOC_LANG
-  rm -f $shortcut; ln -s $cachedir $shortcut
+  rm -f $shortcut
+  (cd $ODOC_CACHE_DIR && ln -s ${cachedir#$ODOC_CACHE_DIR/} $shortcut)
 
   find $cachedir \( -name '*.tmp' -o -size -30c \) -print0 | xargs -0 rm
 ###  find $cachedir \( -name '*.txt' -o -name '*.merged.html' \) | xargs ls -l
