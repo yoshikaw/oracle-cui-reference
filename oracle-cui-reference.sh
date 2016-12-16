@@ -255,6 +255,7 @@ function __odoc_filter() { #{{{
 function __odoc_download() { #{{{
   local url=$1
   local file=$2
+  [[ -f "$file" ]] && return 0
   [[ -d ${file%/*} ]] || mkdir -p ${file%/*}
   wget -qN $url -O $file
 } #}}}
@@ -306,7 +307,7 @@ function omkdata() { #{{{
 
   local toc=$ODOC_CACHE_DIR/${url#*://}
   local cachedir=${toc%/*}
-  [[ -f "$toc" ]] || __odoc_download "$url" "$toc" || return $?
+  __odoc_download "$url" "$toc" || return $?
 
   local p
   local -a pages; pages=(whatsnew initparams statviews dynviews limits scripts waitevents enqueues stats bgprocesses)
@@ -383,7 +384,7 @@ function omkdata() { #{{{
     indexname=${indexfile##*/}
     __odoc_set_terminal_title "omkdata($relver $ODOC_LANG) ${indexname%%.*}"
 
-    [[ -f "$cachefile" ]] || __odoc_download "${url%/*}/$file" "$cachefile"
+    __odoc_download "${url%/*}/$file" "$cachefile"
 
     if [[ -f "$cachefile" ]]; then
       tmpfile=${cachefile}.tmp
@@ -404,8 +405,10 @@ function omkdata() { #{{{
 
           # output header first
           [[ -s $indexfile ]] || {
+            breadcrumbs_cache="$cachedir/${__odoc_breadcrumbs[$relver$lang]##*/}"
+            __odoc_download "${__odoc_breadcrumbs[$relver$lang]}" "$breadcrumbs_cache"
             # get product title
-            prod_title=$(wget -O- ${__odoc_breadcrumbs[$relver$lang]} 2> /dev/null | grep '"product"' | cut -d'"' -f4 | sed 's,<[^>]*>,,g')
+            prod_title=$(grep '"product"' $breadcrumbs_cache | cut -d'"' -f4 | sed 's,<[^>]*>,,g')
             echo $prod_title > $indexfile
             grep 'dcterms.title' $cachefile | cut -d'"' -f 4 >> $indexfile
             grep 'dcterms.identifier' $cachefile | cut -d'"' -f 4 >> $indexfile
@@ -417,8 +420,8 @@ function omkdata() { #{{{
 
           # output footer
           [[ -s ${indexfile}.footer.tmp ]] || {
-            headfoot_cache="$cachedir/headfoot.js"
-            [[ -f "$headfoot_cache" ]] || __odoc_download "${__odoc_headfoot[$relver$lang]}" "$headfoot_cache"
+            headfoot_cache="$cachedir/${__odoc_headfoot[$relver$lang]##*/}"
+            __odoc_download "${__odoc_headfoot[$relver$lang]}" "$headfoot_cache"
             # get copyright
             echo $__odoc_ruled_line > ${indexfile}.footer.tmp
             grep 'cpyrSpan.appendChild' $headfoot_cache |
