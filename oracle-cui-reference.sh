@@ -269,10 +269,8 @@ function __odoc_view() { #{{{
     2) case $2 in 102|111|112|121|122) relver=$2; shift;; esac;;
     *) relver=$2; shift;;
   esac
-  local lang="$(__odoc_lang)"
-  local url="$(__odoc_url_base)/$page"
   local word=$(__odoc_upper "$2")
-  local file="$ODOC_CACHE_DIR/${url#http://}.txt"
+  local file="$ODOC_CACHE_DIR/${relver}${ODOC_LANG}/${page}.txt"
   local cmdline
   if [[ "$ODOC_DYN" -eq 1 ]]; then
     file=${file%.htm.txt}.merged.html
@@ -308,6 +306,14 @@ function omkdata() { #{{{
   local toc=$ODOC_CACHE_DIR/${url#*://}
   local cachedir=${toc%/*}
   __odoc_download "$url" "$toc" || return $?
+
+  local part_no=$(grep -E 'dcterms.identifier|partnum' $toc | cut -d'"' -f 4)
+  if [[ -n "$part_no" ]]; then
+    cachedir=$cachedir/$part_no
+    mkdir -p $cachedir
+    mv $toc $cachedir/
+    toc=${toc%/*}/$part_no/${toc##*/}
+  fi
 
   local p
   local -a pages; pages=(whatsnew initparams statviews dynviews limits scripts waitevents enqueues stats bgprocesses)
