@@ -424,7 +424,7 @@ function omkdata() { #{{{
 
           printf "(%3d %2s) %-15s | %5d %-50s | %s\n" $relver $ODOC_LANG ${indexname%%.*} $lines $file "$title"
           echo $__odoc_ruled_line >> $indexfile
-          tail -n +2 $tmpfile | head -n +$[ lines - 2 ] >> $indexfile
+          tail -n +3 $tmpfile | head -n +$[ lines - 3 ] >> $indexfile
 
           # output footer
           [[ -s ${indexfile}.footer.tmp ]] || {
