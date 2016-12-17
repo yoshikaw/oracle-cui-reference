@@ -303,6 +303,8 @@ function omkdata() { #{{{
   local lang="$(__odoc_lang)"
   local url="$(__odoc_url_base)/toc.htm"
 
+  [[ "${url#*://}" = "${url}" ]] && return
+
   local toc=$ODOC_CACHE_DIR/${url#*://}
   local cachedir=${toc%/*}
   __odoc_download "$url" "$toc" || return $?
