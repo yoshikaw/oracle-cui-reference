@@ -14,7 +14,7 @@ Usage
      omkdata function requires one argument
      such as release version:
 
-       122 - Oracle Database 12c Release 2 (12.2) * English version only
+       122 - Oracle Database 12c Release 2 (12.2)
        121 - Oracle Database 12c Release 1 (12.1)
        112 - Oracle Database 11g Release 2 (11.2)
        111 - Oracle Database 11g Release 1 (11.1)

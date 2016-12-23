@@ -39,7 +39,7 @@
 #      omkdata function requires one argument
 #      such as release version:
 #
-#        122 - Oracle Database 12c Release 2 (12.2) * English version only
+#        122 - Oracle Database 12c Release 2 (12.2)
 #        121 - Oracle Database 12c Release 1 (12.1)
 #        112 - Oracle Database 11g Release 2 (11.2)
 #        111 - Oracle Database 11g Release 1 (11.1)
@@ -139,6 +139,7 @@ __odoc[102001]='s0702http://otndnld.oracle.co.jp/document/products/oracle10g/102
 __odoc[111001]='s0702http://otndnld.oracle.co.jp/document/products/oracle11g/111/doc_dvd/server.111/E05771-04'
 __odoc[112001]='u0602http://docs.oracle.com/cd/E16338_01/server.112/b56311'
 __odoc[121001]='u0602http://docs.oracle.com/cd/E57425_01/121/REFRN'
+__odoc[122001]='u0602http://docs.oracle.com/cd/E82638_01/REFRN'
 __odoc_lang_ja='001'
 
 # new navigation
@@ -422,7 +423,7 @@ function omkdata() { #{{{
             grep 'dcterms.identifier' $cachefile | cut -d'"' -f 4 >> $indexfile
           }
 
-          printf "(%3d %2s) %-15s | %5d %-50s | %s\n" $relver $ODOC_LANG ${indexname%%.*} $lines $file "$title"
+          printf "(%3d %2s) %-15s | %5d %-52s | %s\n" $relver $ODOC_LANG ${indexname%%.*} $lines $file "$title"
           echo $__odoc_ruled_line >> $indexfile
           tail -n +3 $tmpfile | head -n +$[ lines - 3 ] >> $indexfile
 
@@ -445,7 +446,7 @@ function omkdata() { #{{{
           lines=$(cat $tmpfile | wc -l)
           [[ $convert_title -eq 1 ]] && title="$(echo $title | iconv -f SJIS -t ${LANG#*.} 2> /dev/null)"
 
-          printf "(%3d %2s) %-15s | %5d %-20s | %s\n" $relver $ODOC_LANG ${indexname%%.*} $lines $file "$title"
+          printf "(%3d %2s) %-15s | %5d %-52s | %s\n" $relver $ODOC_LANG ${indexname%%.*} $lines $file "$title"
           tail -n +$start_line $tmpfile | head -n +$[ lines - lines_of_frame ] >> $indexfile
 
   #printf "-- DEBUG: lines: %d, h:%d c:%d f:%d \n" $lines $lines_of_header $lines_of_frame $lines_of_footer >> $indexfile
